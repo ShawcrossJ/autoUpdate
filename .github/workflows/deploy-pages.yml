@@ -1,0 +1,39 @@
+name: Publish to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1) Check out your code
+      - uses: actions/checkout@v4
+
+      # 2) Copy (or build) your static files into a folder
+      #    Here we already have index.html + data.json at the root,
+      #    so we can just point pages at the repo root.
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p public
+          cp index.html data.json public/
+
+      # 3) Configure Pages
+      - uses: actions/configure-pages@v4
+
+      # 4) Upload to Pages
+      - uses: actions/upload-pages-artifact@v1
+        with:
+          path: public
+
+  release:
+    needs: deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Success
+        run: echo "Your site is live at ${{ steps.deploy.outputs.page_url }}"
