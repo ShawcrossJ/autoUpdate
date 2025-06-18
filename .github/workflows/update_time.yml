@@ -1,0 +1,33 @@
+name: Auto-update data.json
+
+on:
+  schedule:
+    # runs every minute
+    - cron:  '*/1 * * * *'
+  workflow_dispatch:
+
+jobs:
+  write_time:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) check out the repo
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2) overwrite data.json with the current time
+      - name: Write timestamp
+        run: |
+          echo "{ \"time\": \"$(date -u +'%Y-%m-%d %H:%M:%S UTC')\" }" > data.json
+
+      # 3) commit & push
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git commit -m "Auto-update data.json"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

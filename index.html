@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AutoUpdate Demo</title>
+  <style>body { font-family: sans-serif; padding: 2rem; }</style>
+</head>
+<body>
+  <h1>Last Updated:</h1>
+  <pre id="ts">Loading…</pre>
+  <script>
+    async function fetchTime() {
+      try {
+        const r = await fetch('data.json?cachebust=' + Date.now());
+        const j = await r.json();
+        document.getElementById('ts').textContent = j.time;
+      } catch (e) {
+        document.getElementById('ts').textContent = 'Error: '+e;
+      }
+    }
+    fetchTime();
+    // Optional: refresh every 30s in browser
+    setInterval(fetchTime, 30000);
+  </script>
+</body>
+</html>
